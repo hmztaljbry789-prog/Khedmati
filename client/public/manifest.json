@@ -1,0 +1,28 @@
+{
+  "short_name": "خدمتي",
+  "name": "خدمتي - منصة الخدمات المنزلية الموثوقة",
+  "icons": [
+    {
+      "src": "favico.png",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#08090F",
+  "theme_color": "#08090F",
+  "dir": "rtl",
+  "lang": "ar",
+  "display": "standalone",
+  "orientation": "portrait"
+}

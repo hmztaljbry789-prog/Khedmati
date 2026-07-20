@@ -1,0 +1,485 @@
+/* ==========================================================================
+   Admin theme bridge
+   The admin pages were authored with a mix of hard-coded light and dark
+   Tailwind colors. These rules remap those colors onto the site's theme
+   variables so the whole admin area looks correct in BOTH light and dark.
+   Scope: everything inside .admin-scope (the admin shell).
+   ========================================================================== */
+
+.admin-scope {
+    color: var(--text);
+    font-family: "Cairo", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Default Backgrounds (Auto-adapt to light/dark based on CSS variables) */
+.admin-scope {
+    background-color: rgb(var(--bg)) !important;
+}
+
+/* ---- Strong text follows the theme ---- */
+.admin-scope .text-black,
+.admin-scope .text-gray-900,
+.admin-scope .text-gray-800,
+.admin-scope .text-gray-200,
+.admin-scope .text-gray-100,
+.admin-scope .text-neutral-800,
+.admin-scope .text-neutral-700,
+.admin-scope .text-slate-900,
+.admin-scope .text-slate-800,
+.admin-scope .text-slate-200,
+.admin-scope .text-slate-100 {
+    color: var(--text) !important;
+}
+
+/* ---- Muted text follows the theme ---- */
+.admin-scope .text-gray-600,
+.admin-scope .text-gray-500,
+.admin-scope .text-gray-400,
+.admin-scope .text-gray-300,
+.admin-scope .text-neutral-600,
+.admin-scope .text-neutral-500,
+.admin-scope .text-neutral-400,
+.admin-scope .text-slate-600,
+.admin-scope .text-slate-500,
+.admin-scope .text-slate-400,
+.admin-scope .text-slate-300 {
+    color: var(--text-dim) !important;
+}
+
+/* ---- Neutral surfaces follow the theme ---- */
+.admin-scope .bg-white,
+.admin-scope .bg-neutral-50,
+.admin-scope .bg-gray-50,
+.admin-scope .bg-gray-100,
+.admin-scope .bg-gray-200 {
+    background-color: var(--card-solid) !important;
+    color: var(--text) !important;
+}
+
+/* ---- Neutral borders follow the theme ---- */
+.admin-scope .border-gray-300,
+.admin-scope .border-neutral-200,
+.admin-scope .border-neutral-500,
+.admin-scope table,
+.admin-scope th,
+.admin-scope td,
+.admin-scope tr {
+    border-color: var(--border) !important;
+}
+
+/* Form controls: readable text, solid background, visible borders. */
+.admin-scope input,
+.admin-scope select,
+.admin-scope textarea {
+    background-color: var(--input-bg) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 10px !important;
+    padding: 10px 14px !important;
+    transition: all 0.25s ease !important;
+}
+.admin-scope input::placeholder,
+.admin-scope textarea::placeholder {
+    color: var(--text-muted) !important;
+}
+
+.admin-scope input:focus,
+.admin-scope select:focus,
+.admin-scope textarea:focus {
+    border-color: var(--blue-bright) !important;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2) !important;
+    outline: none !important;
+}
+
+/* Headings and strong labels keep full theme contrast. */
+.admin-scope h1,
+.admin-scope h2,
+.admin-scope h3,
+.admin-scope h4,
+.admin-scope label,
+.admin-scope th {
+    color: var(--text);
+}
+
+/* ---- Recharts legible in both themes ---- */
+.admin-scope .recharts-text {
+    fill: var(--text-dim) !important;
+}
+.admin-scope .recharts-cartesian-grid line {
+    stroke: var(--border) !important;
+}
+
+/* ==========================================================================
+   Dashboard responsive grids (glass redesign)
+   ========================================================================== */
+.admin-scope .dash-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+.admin-scope .dash-charts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+@media (max-width: 1024px) {
+    .admin-scope .dash-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .admin-scope .dash-charts {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 560px) {
+    .admin-scope .dash-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================================
+   DARK theme ONLY: custom gorgeous dark gradients and navy borders
+   ========================================================================== */
+html:not(.light) .admin-scope {
+    background: radial-gradient(circle at top, #0f172e 0%, #080a12 100%) !important;
+}
+
+html:not(.light) .admin-scope .bg-white,
+html:not(.light) .admin-scope .bg-neutral-50,
+html:not(.light) .admin-scope .bg-gray-50,
+html:not(.light) .admin-scope .bg-gray-100,
+html:not(.light) .admin-scope .bg-gray-200,
+html:not(.light) .admin-scope .card-themed {
+    background-color: #101626 !important; /* Rich Dark Royal Navy */
+    border: 1px solid rgba(59, 130, 246, 0.14) !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25) !important;
+}
+
+html:not(.light) .admin-scope th {
+    background-color: #141b2d !important;
+    color: var(--blue-bright) !important;
+    font-weight: 700 !important;
+    border-bottom: 2px solid rgba(59, 130, 246, 0.2) !important;
+}
+
+html:not(.light) .admin-scope tr:hover {
+    background-color: rgba(59, 130, 246, 0.03) !important;
+}
+
+html:not(.light) .admin-scope .bg-yellow-100,
+html:not(.light) .admin-scope .bg-yellow-200 {
+    background-color: rgba(234, 179, 8, 0.12) !important;
+}
+html:not(.light) .admin-scope .bg-blue-50,
+html:not(.light) .admin-scope .bg-blue-100 {
+    background-color: var(--blue-dim) !important;
+}
+html:not(.light) .admin-scope .bg-green-100 {
+    background-color: var(--green-dim) !important;
+}
+html:not(.light) .admin-scope .bg-red-100,
+html:not(.light) .admin-scope .bg-red-200 {
+    background-color: var(--red-dim) !important;
+}
+
+html:not(.light) .admin-scope .border-yellow-400 {
+    border-color: rgba(234, 179, 8, 0.35) !important;
+}
+html:not(.light) .admin-scope .border-blue-400 {
+    border-color: var(--border-blue) !important;
+}
+html:not(.light) .admin-scope .border-green-600 {
+    border-color: rgba(16, 185, 129, 0.4) !important;
+}
+html:not(.light) .admin-scope .border-red-600 {
+    border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+/* Status pills + accent text need brighter ink on dark tints */
+html:not(.light) .admin-scope .text-green-800 {
+    color: #4ade80 !important;
+}
+html:not(.light) .admin-scope .text-blue-800 {
+    color: #60a5fa !important;
+}
+html:not(.light) .admin-scope .text-yellow-800 {
+    color: #fbbf24 !important;
+}
+
+/* Beautiful logo enhancements */
+.admin-scope .logo {
+    text-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+    background: linear-gradient(135deg, var(--text) 0%, var(--blue-bright) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* ==========================================================================
+   LIGHT theme ONLY: fix pages authored with dark "white/x" + "black/x" colors
+   (Bookings, Users).
+   ========================================================================== */
+html.light .admin-scope .bg-white\/5 {
+    background-color: rgba(15, 23, 42, 0.04) !important;
+}
+html.light .admin-scope .bg-white\/10,
+html.light .admin-scope .hover:bg-white\/10:hover {
+    background-color: rgba(15, 23, 42, 0.08) !important;
+}
+html.light .admin-scope .hover:bg-white\/5:hover {
+    background-color: rgba(15, 23, 42, 0.05) !important;
+}
+html.light .admin-scope .bg-black\/30 {
+    background-color: rgba(15, 23, 42, 0.04) !important;
+}
+html.light .admin-scope .border-white\/10,
+html.light .admin-scope .border-white\/5 {
+    border-color: var(--border) !important;
+}
+
+html.light .admin-scope .bg-black\/20 {
+    background-color: rgba(15, 23, 42, 0.04) !important;
+}
+html.light .admin-scope .border-white\/5 {
+    border-color: var(--border) !important;
+}
+html.light .admin-scope .text-white {
+    color: var(--text) !important;
+}
+/* Solid colored buttons and pills keep their white ink. */
+html.light .admin-scope .bg-blue-600.text-white,
+html.light .admin-scope .bg-green-600.text-white,
+html.light .admin-scope .bg-amber-500.text-white,
+html.light .admin-scope .bg-red-600.text-white {
+    color: #ffffff !important;
+}
+
+/* ==========================================================================
+   ENHANCED GLOBAL ADMIN CUSTOM DESIGN SYSTEM (Matches website)
+   ========================================================================== */
+
+/* Typography */
+.admin-scope {
+    font-family: var(--font-body) !important;
+}
+.admin-scope h1,
+.admin-scope h2,
+.admin-scope h3 {
+    font-family: var(--font-display) !important;
+    letter-spacing: -0.02em;
+}
+
+/* Glass cards for bookings, stats, support etc. */
+.admin-scope .bg-white\/5,
+.admin-scope .bg-neutral-900\/40 {
+    background-color: var(--glass-bg) !important;
+    border: 1px solid var(--glass-border) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    box-shadow: var(--shadow) !important;
+    transition: transform 0.2s ease, box-shadow 0.25s ease, border-color 0.2s ease;
+}
+
+.admin-scope .bg-white\/5:hover {
+    border-color: var(--border-blue) !important;
+    box-shadow: 0 8px 30px rgba(59, 130, 246, 0.08), var(--shadow) !important;
+}
+
+/* Form inputs & selections */
+.admin-scope input,
+.admin-scope select,
+.admin-scope textarea {
+    background-color: var(--input-bg) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text) !important;
+    border-radius: 14px !important;
+    transition: all 0.2s ease !important;
+}
+
+.admin-scope input:focus,
+.admin-scope select:focus,
+.admin-scope textarea:focus {
+    border-color: var(--blue-bright) !important;
+    box-shadow: 0 0 16px var(--blue-glow) !important;
+}
+
+/* Active primary buttons (glow gradient) */
+.admin-scope .bg-blue-600,
+.admin-scope .bg-gradient-to-r.from-blue-600.to-cyan-500 {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-bright) 100%) !important;
+    border-color: transparent !important;
+    box-shadow: var(--shadow-blue) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    transition: transform 0.2s, filter 0.2s, box-shadow 0.2s !important;
+}
+
+.admin-scope .bg-blue-600:hover,
+.admin-scope .bg-gradient-to-r.from-blue-600.to-cyan-500:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.08) !important;
+    box-shadow: 0 10px 24px var(--blue-glow), var(--shadow-blue) !important;
+}
+
+/* Inactive / cancel / secondary buttons (glass look) */
+.admin-scope .bg-slate-600 {
+    background-color: var(--glass-bg) !important;
+    border: 1px solid var(--glass-border) !important;
+    color: var(--text-dim) !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+
+.admin-scope .bg-slate-600:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--border-blue) !important;
+    color: var(--text) !important;
+}
+
+/* Status selection box and inputs styling */
+.admin-scope select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23cbd5e1' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+}
+
+[dir="rtl"] .admin-scope select {
+    background-position: left 0.5rem center;
+    padding-left: 2.5rem !important;
+    padding-right: 1rem !important;
+}
+
+/* Custom Scrollbar inside Admin Scope matching site theme */
+.admin-scope ::-webkit-scrollbar-thumb {
+    background-color: var(--blue) !important;
+    border-radius: 999px;
+}
+.admin-scope ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--blue-bright) !important;
+}
+
+
+/* ==========================================================================
+   LIGHT theme polish — match the main site look (clean white + blue accents)
+   ========================================================================== */
+html.light .admin-scope {
+    background:
+        radial-gradient(1100px 500px at 85% -10%, rgba(59, 130, 246, 0.08), transparent 60%),
+        radial-gradient(900px 420px at 0% 0%, rgba(6, 182, 212, 0.06), transparent 55%),
+        #f6f8fc !important;
+}
+
+/* Cards: solid white with soft blue-tinted shadows (no washed-out grey) */
+html.light .admin-scope .bg-white\/5,
+html.light .admin-scope .bg-neutral-900\/40 {
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+html.light .admin-scope .bg-white\/5:hover {
+    border-color: rgba(59, 130, 246, 0.35) !important;
+    box-shadow: 0 10px 24px rgba(59, 130, 246, 0.10) !important;
+}
+
+/* Tables: light blue header + subtle row hover, like the site accents */
+html.light .admin-scope th {
+    background-color: #eff4fb !important;
+    color: #1d4ed8 !important;
+    font-weight: 700 !important;
+    border-bottom: 2px solid rgba(59, 130, 246, 0.18) !important;
+}
+html.light .admin-scope tr:hover {
+    background-color: rgba(59, 130, 246, 0.045) !important;
+}
+
+/* Inputs and selects: crisp white with visible borders */
+html.light .admin-scope input,
+html.light .admin-scope select,
+html.light .admin-scope textarea {
+    background-color: #ffffff !important;
+    border-color: #d7e0ec !important;
+}
+html.light .admin-scope select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+}
+
+/* Dark-tinted pill/text colors become readable ink on light */
+html.light .admin-scope .text-red-300 { color: #dc2626 !important; }
+html.light .admin-scope .text-green-300,
+html.light .admin-scope .text-green-400 { color: #059669 !important; }
+html.light .admin-scope .text-amber-300,
+html.light .admin-scope .text-amber-400 { color: #b45309 !important; }
+html.light .admin-scope .text-blue-300,
+html.light .admin-scope .text-blue-400 { color: #1d4ed8 !important; }
+html.light .admin-scope .text-purple-300,
+html.light .admin-scope .text-purple-400 { color: #6d28d9 !important; }
+html.light .admin-scope .text-gray-200,
+html.light .admin-scope .text-slate-200 { color: var(--text) !important; }
+html.light .admin-scope .bg-red-500\/15 { background-color: rgba(239, 68, 68, 0.10) !important; }
+html.light .admin-scope .bg-green-500\/15 { background-color: rgba(16, 185, 129, 0.10) !important; }
+html.light .admin-scope .bg-amber-500\/15 { background-color: rgba(245, 158, 11, 0.12) !important; }
+html.light .admin-scope .bg-blue-500\/15 { background-color: rgba(59, 130, 246, 0.10) !important; }
+html.light .admin-scope .bg-purple-500\/15 { background-color: rgba(109, 40, 217, 0.10) !important; }
+html.light .admin-scope .bg-slate-500\/15 { background-color: rgba(100, 116, 139, 0.12) !important; }
+html.light .admin-scope .bg-slate-500\/10 { background-color: rgba(100, 116, 139, 0.08) !important; }
+html.light .admin-scope .border-blue-500\/30 { border-color: rgba(37, 99, 235, 0.25) !important; }
+html.light .admin-scope .border-purple-500\/30 { border-color: rgba(109, 40, 217, 0.25) !important; }
+html.light .admin-scope .border-amber-500\/30 { border-color: rgba(217, 119, 11, 0.25) !important; }
+html.light .admin-scope .border-green-500\/30 { border-color: rgba(5, 150, 105, 0.25) !important; }
+html.light .admin-scope .border-red-500\/30 { border-color: rgba(220, 38, 38, 0.25) !important; }
+html.light .admin-scope .border-slate-500\/30 { border-color: rgba(100, 116, 139, 0.25) !important; }
+html.light .admin-scope .border-slate-500\/20 { border-color: rgba(100, 116, 139, 0.18) !important; }
+
+
+/* Secondary (glass) buttons on light: clean outline style */
+html.light .admin-scope .bg-slate-600 {
+    background-color: #ffffff !important;
+    border: 1px solid #d7e0ec !important;
+    color: #475569 !important;
+}
+html.light .admin-scope .bg-slate-600:hover {
+    background-color: #f1f5f9 !important;
+    border-color: rgba(59, 130, 246, 0.4) !important;
+    color: var(--text) !important;
+}
+
+/* ==========================================================================
+   Responsive refinements — all admin pages on every screen size
+   ========================================================================== */
+/* Tables always scroll horizontally instead of breaking the layout */
+.admin-scope .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+@media (max-width: 768px) {
+    .admin-scope h1 { font-size: 22px !important; }
+    .admin-scope h2 { font-size: 18px !important; }
+}
+
+@media (max-width: 560px) {
+    .admin-scope { font-size: 13px; }
+    .admin-scope table { font-size: 12px !important; }
+    .admin-scope th,
+    .admin-scope td { padding: 8px 10px !important; white-space: nowrap; }
+    .admin-scope input,
+    .admin-scope select,
+    .admin-scope textarea { font-size: 13px !important; }
+    /* Search boxes stretch full width on phones */
+    .admin-scope input[type="text"],
+    .admin-scope input[type="search"] { width: 100% !important; }
+}
+
+/* Stat cards: 2 columns on tablets already; stack on very small phones */
+@media (max-width: 420px) {
+    .admin-scope .grid.grid-cols-2 { grid-template-columns: 1fr !important; }
+}

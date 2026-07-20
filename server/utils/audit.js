@@ -1,0 +1,1 @@
+import AuditLog from "../models/AuditLog.js";export async function writeAudit(req,d){try{await AuditLog.create({actor:req.user?._id,action:d.action,entityType:d.entityType,entityId:String(d.entityId),before:d.before??null,after:d.after??null,metadata:d.metadata||{},ip:req.ip,userAgent:req.headers["user-agent"]||""});}catch(e){console.error("Audit log failed:",e.message);}}

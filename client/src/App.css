@@ -1,0 +1,579 @@
+/* ============================================================================
+   Khedmati — Design System / Theme Tokens
+   ----------------------------------------------------------------------------
+   The whole UI consumes these CSS custom properties through inline styles
+   (var(--bg), var(--text), var(--glass-bg), ...) and the helper classes
+   .btn-glow / .spin. They are defined here for both the dark (default)
+   and light themes. The <html> element gets the class "light" toggled by
+   PortalContext to switch themes.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap');
+
+/* ---------------------------------------------------------------- DARK (default) */
+:root {
+    /* RGB triplets — consumed inside rgba(var(--x), a) */
+    --bg: 8, 10, 18;
+    --bg-2: 14, 17, 28;
+
+    /* Surfaces */
+    --surface: #0e111c;
+    --card-solid: #11151f;
+    --glass-bg: rgba(255, 255, 255, 0.045);
+    --glass-border: rgba(255, 255, 255, 0.09);
+
+    /* Text */
+    --text: #f1f5f9;
+    --text-dim: #cbd5e1;
+    --text-muted: #94a3b8;
+
+    /* Borders */
+    --border: rgba(255, 255, 255, 0.09);
+    --border-light: rgba(255, 255, 255, 0.16);
+    --border-blue: rgba(96, 165, 250, 0.45);
+
+    /* Brand / accent */
+    --blue: #3b82f6;
+    --blue-bright: #60a5fa;
+    --blue-dim: rgba(59, 130, 246, 0.14);
+    --blue-glow: rgba(59, 130, 246, 0.30);
+    --cyan: #22d3ee;
+
+    /* Status */
+    --green: #10b981;
+    --green-dim: rgba(16, 185, 129, 0.15);
+    --red: #f87171;
+    --red-dim: rgba(239, 68, 68, 0.15);
+    --amber: #f59e0b;
+    --amber-dim: rgba(245, 158, 11, 0.15);
+
+    /* Inputs (so light mode forms are not white-on-white) */
+    --input-bg: rgba(255, 255, 255, 0.04);
+
+    /* Shadows */
+    --shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.55);
+    --shadow-blue: 0 10px 30px rgba(59, 130, 246, 0.35);
+
+    /* Typography */
+    --font-display: "NeuwMachinaBold", "Space Grotesk", "Cairo", sans-serif;
+    --font-body: "Wanted Sans Regular", "Cairo", system-ui, sans-serif;
+
+    color-scheme: dark;
+}
+
+/* ── Interactive, responsive hero statistics ───────────────────────────── */
+.hero-stats-grid {
+    width: min(100%, 820px);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 12px;
+    padding: 0 4px;
+}
+
+.hero-stat-card {
+    --stat-accent: var(--blue-bright);
+    position: relative;
+    min-width: 0;
+    min-height: 96px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px 18px;
+    overflow: hidden;
+    border-radius: 20px;
+    border: 1px solid color-mix(in srgb, var(--stat-accent) 24%, var(--border));
+    background:
+        radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--stat-accent) 10%, transparent), transparent 60%),
+        var(--glass-bg);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04);
+    backdrop-filter: blur(14px);
+    cursor: default;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+html.light .hero-stat-card {
+    border: 1px solid color-mix(in srgb, var(--stat-accent) 20%, rgba(15, 23, 42, 0.08));
+    background:
+        radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--stat-accent) 6%, transparent), transparent 60%),
+        var(--glass-bg);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.03);
+}
+
+.hero-stat-card::before {
+    content: "";
+    position: absolute;
+    inset-inline: 16px;
+    top: 0;
+    height: 2.5px;
+    border-radius: 0 0 99px 99px;
+    background: var(--stat-accent);
+    opacity: 0.85;
+}
+
+.hero-stat-card:hover {
+    border-color: var(--stat-accent);
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.12);
+}
+
+.hero-stat-blue { --stat-accent: #2563eb; }
+.hero-stat-green { --stat-accent: #059669; }
+.hero-stat-cyan { --stat-accent: #0891b2; }
+.hero-stat-amber { --stat-accent: #d97706; }
+
+.hero-stat-icon {
+    width: 39px;
+    height: 39px;
+    flex: 0 0 39px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    color: var(--stat-accent);
+    background: color-mix(in srgb, var(--stat-accent) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--stat-accent) 24%, transparent);
+}
+
+.hero-stat-copy {
+    min-width: 0;
+    text-align: start;
+}
+
+.hero-stat-value {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(1.25rem, 2vw, 1.65rem);
+    line-height: 1.1;
+    color: var(--text);
+    white-space: nowrap;
+}
+
+.hero-stat-label {
+    margin: 5px 0 0;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 650;
+    line-height: 1.35;
+}
+
+@media (max-width: 960px) {
+    .hero-stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        width: min(100%, 580px);
+    }
+}
+
+@media (max-width: 520px) {
+    .hero-stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        width: 100%;
+    }
+
+    .hero-stat-card {
+        min-height: 84px;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: 16px;
+    }
+
+    .hero-stat-icon {
+        width: 34px;
+        height: 34px;
+        flex-basis: 34px;
+        border-radius: 10px;
+    }
+
+    .hero-stat-value {
+        font-size: 1.2rem;
+    }
+
+    .hero-stat-label {
+        font-size: 0.68rem;
+        margin-top: 3px;
+    }
+}
+
+@media (max-width: 360px) {
+    .hero-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}
+
+/* ---------------------------------------------------------------- LIGHT */
+html.light {
+    --bg: 247, 249, 252;
+    --bg-2: 255, 255, 255;
+
+    --surface: #ffffff;
+    --card-solid: #ffffff;
+    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-border: rgba(15, 23, 42, 0.08);
+
+    --text: #0f172a;
+    --text-dim: #334155;
+    --text-muted: #64748b;
+
+    --border: rgba(15, 23, 42, 0.10);
+    --border-light: rgba(15, 23, 42, 0.16);
+    --border-blue: rgba(37, 99, 235, 0.40);
+
+    --blue: #2563eb;
+    --blue-bright: #1d4ed8;
+    --blue-dim: rgba(37, 99, 235, 0.10);
+    --blue-glow: rgba(37, 99, 235, 0.20);
+    --cyan: #0891b2;
+
+    --green: #059669;
+    --green-dim: rgba(5, 150, 105, 0.12);
+    --red: #dc2626;
+    --red-dim: rgba(220, 38, 38, 0.10);
+    --amber: #d97706;
+    --amber-dim: rgba(217, 119, 11, 0.12);
+
+    --input-bg: rgba(15, 23, 42, 0.03);
+
+    --shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+    --shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.16);
+    --shadow-blue: 0 10px 30px rgba(37, 99, 235, 0.22);
+
+    color-scheme: light;
+}
+
+/* ---------------------------------------------------------------- Base canvas */
+html,
+body {
+    background-color: rgb(var(--bg));
+    color: var(--text);
+}
+
+body {
+    font-family: var(--font-body);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+#root {
+    min-height: 100vh;
+    background-color: rgb(var(--bg));
+}
+
+/* Smooth theme transition for the most common surface properties */
+a,
+button,
+input,
+textarea,
+select,
+svg,
+.theme-surface {
+    transition: background-color 0.25s ease, border-color 0.25s ease,
+        color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Headings default to the display font */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    color: var(--text);
+}
+
+/* Native form controls inherit theme colors */
+input, textarea, select {
+    color: var(--text);
+    font-family: var(--font-body);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--text-muted);
+    opacity: 0.8;
+}
+
+/* Dropdown option contrast (especially in dark mode) */
+select option {
+    background: var(--card-solid);
+    color: var(--text);
+}
+
+/* Text selection */
+::selection {
+    background: var(--blue-glow);
+    color: var(--text);
+}
+
+/* ---------------------------------------------------------------- Primary CTA */
+/* Used in 13+ places: glowing gradient action button */
+.btn-glow {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    cursor: pointer;
+    color: #ffffff;
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-bright) 100%);
+    box-shadow: var(--shadow-blue);
+    transition: transform 0.18s ease, box-shadow 0.25s ease, filter 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.btn-glow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.22), transparent 55%);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+
+.btn-glow:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 38px var(--blue-glow), var(--shadow-blue);
+    filter: brightness(1.06);
+}
+
+.btn-glow:hover::before {
+    opacity: 1;
+}
+
+.btn-glow:active {
+    transform: translateY(0);
+    filter: brightness(0.97);
+}
+
+.btn-glow:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    filter: none;
+}
+
+/* ---------------------------------------------------------------- Spinner */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spin {
+    animation: spin 0.8s linear infinite;
+}
+
+/* Generic glass card helper (optional, used by .theme-surface consumers) */
+.glass {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+    }
+}
+
+/* ============================================================
+   Provider (Technician) Dashboard
+   ============================================================ */
+.pd-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+}
+.pd-stat-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 16px;
+    background: var(--glass-bg, rgba(255, 255, 255, 0.04));
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+}
+.pd-stat-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.pd-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+.pd-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-dim, #aab3c5);
+    background: var(--glass-bg, rgba(255, 255, 255, 0.04));
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+    transition: all 0.2s;
+}
+.pd-tab-active {
+    color: #fff;
+    background: linear-gradient(90deg, #3b6cff, #22d3ee);
+    border-color: transparent;
+}
+.pd-badge {
+    font-size: 11px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.18);
+}
+.pd-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+.pd-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 18px;
+    border-radius: 18px;
+    background: var(--glass-bg, rgba(255, 255, 255, 0.04));
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+}
+.pd-card-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.pd-status {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+}
+.pd-note {
+    font-size: 11px;
+    color: var(--text-dim, #aab3c5);
+}
+.pd-service {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+.pd-service-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.pd-service-ph {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(91, 140, 255, 0.15);
+    color: #5b8cff;
+}
+.pd-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-dim, #aab3c5);
+}
+.pd-info-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.pd-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 2px;
+}
+.pd-btn {
+    flex: 1;
+    min-width: 120px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+}
+.pd-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+.pd-btn-green {
+    background: #22c55e;
+    color: #04140a;
+}
+.pd-btn-blue {
+    background: #3b6cff;
+    color: #fff;
+}
+.pd-btn-ghost {
+    background: transparent;
+    color: var(--text, #eaeef6);
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.18));
+}
+.pd-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 56px 16px;
+    color: var(--text-dim, #8a93a6);
+    text-align: center;
+}
+
+/* Responsive breakpoints shared across the dashboard */
+@media (max-width: 900px) {
+    .pd-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 520px) {
+    .pd-stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    .pd-grid {
+        grid-template-columns: 1fr;
+    }
+    .pd-btn {
+        min-width: 0;
+    }
+}
