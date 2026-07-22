@@ -1,12 +1,16 @@
 import express from "express";
 import Booking from "../models/Booking.js";
 import Service from "../models/Service.js";
+import ServiceDetail from "../models/ServiceDetail.js";
 import User from "../models/User.js";
+import { getArabicTitle } from "../data/servicesDetailsData.js";
 
 const router = express.Router();
 
-// Count every individual bookable service nested inside the Service documents
-// (subcategories -> [serviceTypes ->] categories -> services[]). Works whether
+// Count every individual bookable service nested inside the ServiceDetail
+// documents (subcategories -> [serviceTypes ->] categories -> services[]).
+// The catalog tree lives in the ServiceDetail collection, not in Service
+// (Service only stores the top-level name/image/order). Works whether
 // Mongoose Map fields come back as Maps or as plain objects (e.g. with .lean()).
 const toValues = (mapOrObj) => {
     if (!mapOrObj) return [];
@@ -86,7 +90,7 @@ router.get("/stats", async (req, res) => {
         );
 
         // Top services by number of bookings (using items array)
-        const serviceStats = await Booking.aggregate([
+        const rawServiceStats = await Booking.aggregate([
             { $match: { ...dateFilter, "items.title": { $exists: true } } },
             { $unwind: "$items" },
             {
@@ -101,6 +105,11 @@ router.get("/stats", async (req, res) => {
             { $sort: { revenue: -1 } },
             { $limit: 10 },
         ]);
+
+        const serviceStats = rawServiceStats.map((st) => ({
+            ...st,
+            titleAr: st.titleAr || getArabicTitle(st._id) || "",
+        }));
 
         // Booking status distribution
         const bookingStatusStats = await Booking.aggregate([
@@ -173,7 +182,9 @@ router.get("/stats", async (req, res) => {
         const [totalUsers, totalServices, serviceDocs] = await Promise.all([
             User.countDocuments(),
             Service.countDocuments(),
-            Service.find().lean(),
+            // The nested catalog tree (and therefore the real "service details"
+            // count) lives in the ServiceDetail collection.
+            ServiceDetail.find().lean(),
         ]);
         const totalServiceDetails = countNestedServices(serviceDocs);
 

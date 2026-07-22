@@ -198,7 +198,8 @@ const pf = {
         marginBottom: 12,
     },
     statusOk: { fontSize: 13, fontWeight: 700, color: "var(--green, #45c08a)" },
-    statusPending: { fontSize: 13, fontWeight: 700, color: "var(--amber, #f0b429)" },
+    statusPending: { fontSize: 13, fontWeight: 700, color: "var(--cyan, #38bdf8)" },
+    statusNotSubmitted: { fontSize: 13, fontWeight: 700, color: "var(--amber, #f0b429)" },
     statusRejected: { fontSize: 13, fontWeight: 700, color: "var(--red, #ef5a6f)" },
     rejectionBox: {
         margin: "0 0 12px",
@@ -456,17 +457,23 @@ export default function ProviderProfile() {
                             {isRtl ? "حالة التوثيق" : "Verification status"}
                         </span>
                         <span
-                            style={user?.verificationStatus === "rejected"
-                                ? pf.statusRejected
-                                : user?.isVerified
-                                ? pf.statusOk
-                                : pf.statusPending}
+                            style={
+                                user?.isVerified
+                                    ? pf.statusOk
+                                    : user?.verificationStatus === "rejected"
+                                    ? pf.statusRejected
+                                    : user?.idDocument || user?.verificationStatus === "pending"
+                                    ? pf.statusPending
+                                    : pf.statusNotSubmitted
+                            }
                         >
-                            {user?.verificationStatus === "rejected"
+                            {user?.isVerified
+                                ? isRtl ? "موثّق ✓" : "Verified ✓"
+                                : user?.verificationStatus === "rejected"
                                 ? isRtl ? "مرفوض — يلزم التصحيح" : "Rejected — action required"
-                                : user?.isVerified
-                                ? isRtl ? "موثّق" : "Verified"
-                                : isRtl ? "قيد المراجعة" : "Under review"}
+                                : user?.idDocument || user?.verificationStatus === "pending"
+                                ? isRtl ? "قيد المراجعة" : "Under review"
+                                : isRtl ? "لم يتم رفع الهوية بعد" : "ID not uploaded yet"}
                         </span>
                     </div>
 

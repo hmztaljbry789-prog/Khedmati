@@ -307,7 +307,11 @@ export default function AdminBookings() {
                                             key={i}
                                             className="flex items-center justify-between text-sm text-gray-300"
                                         >
-                                            <span>{(isRtl && it.titleAr) || it.title}</span>
+                                            <span>
+                                                {isRtl
+                                                    ? it.titleAr || t[it.title] || it.title
+                                                    : it.title || it.titleAr}
+                                            </span>
                                             <span className="text-gray-400">₪{it.price ?? "-"}</span>
                                         </div>
                                     ))}

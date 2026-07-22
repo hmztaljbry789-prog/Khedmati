@@ -6789,3 +6789,19 @@ export const servicesDetailsData = {
         }
     }
 };
+
+const arabicTitleMap = {};
+function buildArabicTitleMap(obj) {
+    if (!obj || typeof obj !== "object") return;
+    if (obj.title && obj.titleAr) {
+        arabicTitleMap[obj.title] = obj.titleAr;
+    }
+    for (const k in obj) {
+        buildArabicTitleMap(obj[k]);
+    }
+}
+buildArabicTitleMap(servicesDetailsData);
+
+export function getArabicTitle(title) {
+    return arabicTitleMap[title] || "";
+}

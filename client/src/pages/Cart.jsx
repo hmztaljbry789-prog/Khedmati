@@ -34,7 +34,7 @@ export default function Cart() {
                 idempotencyKey,
                 coords: coords || undefined,
                 items: sorted.map(s => ({
-                    serviceId: s._id, image: s.image, title: s.title, category: s.category,
+                    serviceId: s._id, image: s.image, title: s.title, titleAr: s.titleAr || "", category: s.category,
                     quantity: s.quantity, price: s.OurPrice, total: s.OurPrice * s.quantity,
                     suggestedPrice: s.OurPrice, priceRange: { min: s.minPrice, max: s.maxPrice },
                 })),
@@ -79,7 +79,12 @@ export default function Cart() {
                 </h2>
                 <p style={{ fontSize: 13, color: "var(--text-muted)" }}>{t.cartEmptyDesc}</p>
             </div>
-            <button onClick={() => navigate("/")} className="btn-glow" style={{
+            <button onClick={() => {
+                navigate("/#services");
+                setTimeout(() => {
+                    document.getElementById("services")?.scrollIntoView({ behavior: "smooth" });
+                }, 150);
+            }} className="btn-glow" style={{
                 display: "flex", alignItems: "center", gap: 8, padding: "11px 22px",
                 borderRadius: 12, fontSize: 13, fontWeight: 700,
                 background: "linear-gradient(135deg, var(--blue), var(--cyan))",

@@ -236,7 +236,9 @@ const TopServicesChart = ({ data, t, isRtl }) => (
                     <div key={service._id} style={topItem}>
                         <div style={topItemRow}>
                             <span style={topName}>
-                                {(isRtl && service.titleAr) || service._id}
+                                {isRtl
+                                    ? service.titleAr || t[service._id] || service._id
+                                    : service._id}
                             </span>
                             <span style={topVal}>
                                 {service.revenue.toLocaleString()}

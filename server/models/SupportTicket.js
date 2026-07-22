@@ -16,7 +16,8 @@ const supportMessageSchema = new mongoose.Schema(
             enum: ["user", "provider", "admin"],
             required: true,
         },
-        text: { type: String, required: true, trim: true },
+        text: { type: String, trim: true, default: "" },
+        image: { type: String, default: "" },
         createdAt: { type: Date, default: Date.now },
     },
     { _id: true }

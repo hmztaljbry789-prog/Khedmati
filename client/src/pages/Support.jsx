@@ -8,7 +8,7 @@ import {
     getSupportTicket,
     sendSupportMessage,
 } from "../utils/api";
-import { LifeBuoy, Plus, Send, ArrowLeft, Clock } from "lucide-react";
+import { LifeBuoy, Plus, Send, ArrowLeft, Clock, Paperclip, X } from "lucide-react";
 
 const CATEGORIES = ["general", "booking", "payment", "complaint", "technical"];
 
@@ -181,6 +181,34 @@ const emptyState = {
 };
 const promptWrap = { ...page, textAlign: "center", paddingTop: "140px" };
 
+const previewBox = {
+    position: "relative",
+    display: "inline-block",
+    marginBottom: "12px",
+};
+const previewImg = {
+    width: "80px",
+    height: "80px",
+    borderRadius: "12px",
+    objectFit: "cover",
+    border: "1px solid var(--border)",
+};
+const removeBtn = {
+    position: "absolute",
+    top: "-6px",
+    right: "-6px",
+    background: "var(--red)",
+    color: "#fff",
+    border: "none",
+    borderRadius: "50%",
+    width: "22px",
+    height: "22px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+};
+
 export default function Support() {
     const { user, isAuthenticated } = useAuth();
     const { locale } = useContext(PortalContext);
@@ -194,10 +222,17 @@ export default function Support() {
     const [subject, setSubject] = useState("");
     const [category, setCategory] = useState("general");
     const [message, setMessage] = useState("");
+    const [formImage, setFormImage] = useState(null);
+    const [formImagePreview, setFormImagePreview] = useState("");
     const [reply, setReply] = useState("");
+    const [replyImage, setReplyImage] = useState(null);
+    const [replyImagePreview, setReplyImagePreview] = useState("");
     const [error, setError] = useState("");
     const [busy, setBusy] = useState(false);
-    const endRef = useRef(null);
+    const threadBoxRef = useRef(null);
+    const prevMsgCountRef = useRef(0);
+    const formFileInputRef = useRef(null);
+    const replyFileInputRef = useRef(null);
 
     const loadList = useCallback(async () => {
         try {
@@ -229,7 +264,17 @@ export default function Support() {
     }, [activeId, loadTicket]);
 
     useEffect(() => {
-        endRef.current?.scrollIntoView({ behavior: "smooth" });
+        if (!activeTicket) {
+            prevMsgCountRef.current = 0;
+            return;
+        }
+        const currentCount = activeTicket.messages?.length || 0;
+        if (currentCount !== prevMsgCountRef.current) {
+            prevMsgCountRef.current = currentCount;
+            if (threadBoxRef.current) {
+                threadBoxRef.current.scrollTop = threadBoxRef.current.scrollHeight;
+            }
+        }
     }, [activeTicket]);
 
     const statusLabel = (s) =>
@@ -258,19 +303,40 @@ export default function Support() {
     const promptDir = { ...promptWrap, direction: isRtl ? "rtl" : "ltr" };
     const replyInput = { ...input, flex: 1, marginBottom: 0 };
 
+    const handleFormImageSelect = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setFormImage(file);
+            setFormImagePreview(URL.createObjectURL(file));
+        }
+    };
+
+    const handleReplyImageSelect = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setReplyImage(file);
+            setReplyImagePreview(URL.createObjectURL(file));
+        }
+    };
+
     const handleCreate = async (e) => {
         e.preventDefault();
         setError("");
-        if (!subject.trim() || !message.trim()) {
+        if (!subject.trim() || (!message.trim() && !formImage)) {
             setError(t.required);
             return;
         }
         try {
             setBusy(true);
-            const data = await createSupportTicket({ subject, category, message });
+            const data = await createSupportTicket(
+                { subject, category, message },
+                formImage
+            );
             setSubject("");
             setMessage("");
             setCategory("general");
+            setFormImage(null);
+            setFormImagePreview("");
             setShowForm(false);
             await loadList();
             if (data?.ticket?._id) setActiveId(data.ticket._id);
@@ -283,11 +349,14 @@ export default function Support() {
 
     const handleReply = async (e) => {
         e.preventDefault();
-        if (!reply.trim()) return;
+        if (!reply.trim() && !replyImage) return;
         const text = reply;
+        const imgFile = replyImage;
         setReply("");
+        setReplyImage(null);
+        setReplyImagePreview("");
         try {
-            const data = await sendSupportMessage(activeId, text);
+            const data = await sendSupportMessage(activeId, text, imgFile);
             setActiveTicket(data?.ticket || null);
             loadList();
         } catch (err) {
@@ -387,6 +456,41 @@ export default function Support() {
                                 onChange={(e) => setMessage(e.target.value)}
                                 placeholder={t.typeMessage}
                             />
+
+                            <label style={label}>{t.imageOptional}</label>
+                            {formImagePreview ? (
+                                <div style={previewBox}>
+                                    <img src={formImagePreview} alt="" style={previewImg} />
+                                    <button
+                                        type="button"
+                                        style={removeBtn}
+                                        onClick={() => {
+                                            setFormImage(null);
+                                            setFormImagePreview("");
+                                        }}
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                </div>
+                            ) : (
+                                <div style={{ marginBottom: "16px" }}>
+                                    <input
+                                        type="file"
+                                        ref={formFileInputRef}
+                                        accept="image/png, image/jpeg, image/webp"
+                                        style={{ display: "none" }}
+                                        onChange={handleFormImageSelect}
+                                    />
+                                    <button
+                                        type="button"
+                                        style={ghostBtn}
+                                        onClick={() => formFileInputRef.current?.click()}
+                                    >
+                                        <Paperclip size={16} /> {t.attachImage}
+                                    </button>
+                                </div>
+                            )}
+
                             {error ? <div style={errorText}>{error}</div> : null}
                             <button type="submit" style={primaryBtn} disabled={busy}>
                                 {busy ? t.sending : t.create}
@@ -394,34 +498,65 @@ export default function Support() {
                         </form>
                     ) : activeTicket ? (
                         <div>
-                            <div style={listHeader}>
-                                <div>
-                                    <div style={ticketSubject}>
-                                        {activeTicket.subject}
-                                    </div>
-                                    <div style={metaRow}>
-                                        <span style={badgeStyle(activeTicket.status)}>
-                                            {statusLabel(activeTicket.status)}
-                                        </span>
-                                        <span>
-                                            {t.cats?.[activeTicket.category] ||
-                                                activeTicket.category}
-                                        </span>
-                                    </div>
-                                </div>
-                                <button
-                                    type="button"
-                                    style={ghostBtn}
-                                    onClick={() => {
-                                        setActiveId(null);
-                                        setActiveTicket(null);
+                            <div
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    gap: "12px",
+                                    paddingBottom: "14px",
+                                    marginBottom: "16px",
+                                    borderBottom: "1px solid var(--border)",
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "12px",
+                                        flexWrap: "wrap",
                                     }}
                                 >
-                                    <ArrowLeft size={15} /> {t.back}
-                                </button>
+                                    <button
+                                        type="button"
+                                        style={{
+                                            ...ghostBtn,
+                                            padding: "7px 14px",
+                                            borderRadius: "10px",
+                                            fontSize: "13px",
+                                            fontWeight: 600,
+                                        }}
+                                        onClick={() => {
+                                            setActiveId(null);
+                                            setActiveTicket(null);
+                                        }}
+                                    >
+                                        <ArrowLeft
+                                            size={15}
+                                            style={{
+                                                transform: isRtl ? "rotate(180deg)" : "none",
+                                            }}
+                                        />
+                                        <span>{t.back}</span>
+                                    </button>
+                                    <div>
+                                        <div style={{ ...ticketSubject, marginBottom: "2px" }}>
+                                            {activeTicket.subject}
+                                        </div>
+                                        <div style={metaRow}>
+                                            <span style={badgeStyle(activeTicket.status)}>
+                                                {statusLabel(activeTicket.status)}
+                                            </span>
+                                            <span>
+                                                {t.cats?.[activeTicket.category] ||
+                                                    activeTicket.category}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div style={threadBox}>
+                            <div style={threadBox} ref={threadBoxRef}>
                                 {(activeTicket.messages || []).map((m, i) => {
                                     const mine =
                                         m.senderRole !== "admin" &&
@@ -453,11 +588,33 @@ export default function Support() {
                                                         : t.youLabel}
                                                 </span>
                                             </div>
-                                            <div>{m.text}</div>
+                                            {m.text ? <div>{m.text}</div> : null}
+                                            {m.image ? (
+                                                <div style={{ marginTop: "6px" }}>
+                                                    <img
+                                                        src={m.image}
+                                                        alt="Attachment"
+                                                        style={{
+                                                            maxWidth: "100%",
+                                                            maxHeight: "260px",
+                                                            borderRadius: "10px",
+                                                            objectFit: "cover",
+                                                            cursor: "pointer",
+                                                            border: "1px solid var(--border)",
+                                                            display: "block",
+                                                        }}
+                                                        onClick={() => window.open(m.image, "_blank")}
+                                                    />
+                                                </div>
+                                            ) : null}
+                                            {!m.text && !m.image ? (
+                                                <div style={{ fontStyle: "italic", opacity: 0.6, fontSize: "12px" }}>
+                                                    ({isRtl ? "رسالة بدون محتوى" : "Empty message"})
+                                                </div>
+                                            ) : null}
                                         </div>
                                     );
                                 })}
-                                <div ref={endRef} />
                             </div>
 
                             {activeTicket.status === "closed" ? (
@@ -466,7 +623,38 @@ export default function Support() {
                                 </div>
                             ) : null}
 
+                            {replyImagePreview ? (
+                                <div style={previewBox}>
+                                    <img src={replyImagePreview} alt="" style={previewImg} />
+                                    <button
+                                        type="button"
+                                        style={removeBtn}
+                                        onClick={() => {
+                                            setReplyImage(null);
+                                            setReplyImagePreview("");
+                                        }}
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                </div>
+                            ) : null}
+
                             <form onSubmit={handleReply} style={replyRow}>
+                                <input
+                                    type="file"
+                                    ref={replyFileInputRef}
+                                    accept="image/png, image/jpeg, image/webp"
+                                    style={{ display: "none" }}
+                                    onChange={handleReplyImageSelect}
+                                />
+                                <button
+                                    type="button"
+                                    style={{ ...ghostBtn, padding: "10px" }}
+                                    title={t.attachImage}
+                                    onClick={() => replyFileInputRef.current?.click()}
+                                >
+                                    <Paperclip size={18} />
+                                </button>
                                 <input
                                     style={replyInput}
                                     value={reply}

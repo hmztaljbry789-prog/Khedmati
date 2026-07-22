@@ -571,8 +571,20 @@ export const sendChatMessage = async (bookingId, _senderId, text) => {
 // ─────────────────────────────────────────────
 
 // Create a new support ticket (customer or technician).
-export const createSupportTicket = async (payload) => {
+export const createSupportTicket = async (payload, imageFile) => {
     try {
+        if (imageFile || payload instanceof FormData) {
+            const formData = payload instanceof FormData ? payload : new FormData();
+            if (!(payload instanceof FormData)) {
+                if (payload.subject) formData.append("subject", payload.subject);
+                if (payload.category) formData.append("category", payload.category);
+                if (payload.message) formData.append("message", payload.message);
+                if (payload.bookingId) formData.append("bookingId", payload.bookingId);
+                if (imageFile) formData.append("image", imageFile);
+            }
+            const response = await axiosInstance.post(`${API_URL}/support`, formData);
+            return response.data;
+        }
         const response = await axiosInstance.post(`${API_URL}/support`, payload);
         return response.data;
     } catch (error) {
@@ -604,8 +616,18 @@ export const getSupportTicket = async (id) => {
 };
 
 // Add a reply to one of the current user's tickets.
-export const sendSupportMessage = async (id, text) => {
+export const sendSupportMessage = async (id, text, imageFile) => {
     try {
+        if (imageFile) {
+            const formData = new FormData();
+            if (text) formData.append("text", text);
+            formData.append("image", imageFile);
+            const response = await axiosInstance.post(
+                `${API_URL}/support/${id}/messages`,
+                formData
+            );
+            return response.data;
+        }
         const response = await axiosInstance.post(
             `${API_URL}/support/${id}/messages`,
             { text }
@@ -644,8 +666,18 @@ export const getAdminSupportTicket = async (id) => {
 };
 
 // Admin reply to a ticket.
-export const replyAdminSupportTicket = async (id, text) => {
+export const replyAdminSupportTicket = async (id, text, imageFile) => {
     try {
+        if (imageFile) {
+            const formData = new FormData();
+            if (text) formData.append("text", text);
+            formData.append("image", imageFile);
+            const response = await axiosInstance.post(
+                `${API_URL}/admin/support/${id}/messages`,
+                formData
+            );
+            return response.data;
+        }
         const response = await axiosInstance.post(
             `${API_URL}/admin/support/${id}/messages`,
             { text }

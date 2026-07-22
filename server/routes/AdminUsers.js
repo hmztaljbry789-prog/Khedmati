@@ -1,7 +1,7 @@
 import express from "express";
 import User from "../models/User.js";
 import Booking from "../models/Booking.js";
-import { signedAuthenticatedUrl } from "../config/cloudinary.js";
+import { signedAuthenticatedUrl, destroyAsset } from "../config/cloudinary.js";
 import notify from "../utils/notify.js";
 import { writeAudit } from "../utils/audit.js";
 import { autoAssignPendingBookings } from "./bookings.js";
@@ -220,22 +220,31 @@ router.put("/:id/verified", async (req, res) => {
                     missing,
                 });
             }
-        } else if (rejectionReason.length < 5 || rejectionReason.length > 500) {
-            return res.status(400).json({
-                message: "A rejection reason between 5 and 500 characters is required",
-            });
+        } else {
+            if (rejectionReason.length < 5 || rejectionReason.length > 500) {
+                return res.status(400).json({
+                    message: "A rejection reason between 5 and 500 characters is required",
+                });
+            }
+            // Delete the rejected ID document from Cloudinary/storage
+            if (target.idDocument && !target.idDocument.startsWith("assets/")) {
+                await destroyAsset(target.idDocument, {
+                    resource_type: target.idDocumentResourceType || "image",
+                    type: "authenticated",
+                });
+            }
         }
 
-        // Update only the trust flag. Using findByIdAndUpdate with validators
-        // disabled avoids running full-document validation and the password-hash
-        // pre-save hook, which previously made unverifying a provider fail with a
-        // 500 "Error updating verification".
+        // Update verification status and clear ID document if rejected
         const user = await User.findByIdAndUpdate(
             req.params.id,
             {
                 isVerified: !!isVerified,
                 verificationStatus: isVerified ? "verified" : "rejected",
                 verificationRejectionReason: isVerified ? "" : rejectionReason,
+                idDocument: isVerified ? target.idDocument : "",
+                idDocumentFormat: isVerified ? target.idDocumentFormat : "",
+                idDocumentResourceType: isVerified ? target.idDocumentResourceType : "image",
             },
             { returnDocument: "after", runValidators: false }
         ).select(SAFE_FIELDS);

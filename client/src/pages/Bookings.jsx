@@ -707,7 +707,12 @@ export default function Bookings() {
                     {isProvider ? t.noAssignedBookingsDesc : t.noBookingsDesc}
                 </p>
                 {!isProvider && (
-                    <button onClick={() => navigate("/")} className="btn-glow" style={{
+                    <button onClick={() => {
+                        navigate("/#services");
+                        setTimeout(() => {
+                            document.getElementById("services")?.scrollIntoView({ behavior: "smooth" });
+                        }, 150);
+                    }} className="btn-glow" style={{
                         display: "flex", alignItems: "center", gap: 8, padding: "10px 20px",
                         borderRadius: 12, fontSize: 13, fontWeight: 700,
                         background: "linear-gradient(135deg, var(--blue), var(--cyan))",

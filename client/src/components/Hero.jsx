@@ -148,11 +148,14 @@ function StatCounter({ value }) {
         };
     }, [number]);
 
+    const formattedNum = count.toFixed(decimals);
+
     return (
-        <span dir="ltr">
-            {prefix}
-            {count.toFixed(decimals)}
-            {suffix}
+        <span className="stat-counter-box">
+            <span dir="ltr" className="stat-num">
+                {prefix}{formattedNum}
+            </span>
+            {suffix && <span className="stat-suffix">{suffix.trim()}</span>}
         </span>
     );
 }

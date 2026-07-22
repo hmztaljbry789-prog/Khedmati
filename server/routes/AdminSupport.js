@@ -1,8 +1,68 @@
 import express from "express";
+import multer from "multer";
+import sharp from "sharp";
+import crypto from "crypto";
+import path from "path";
 import SupportTicket from "../models/SupportTicket.js";
 import notify from "../utils/notify.js";
+import { uploadBuffer, isCloudinaryConfigured } from "../config/cloudinary.js";
 
 const router = express.Router();
+
+const allowedExtensions = new Set([".png", ".jpg", ".jpeg", ".webp"]);
+const allowedMimeTypes = new Set(["image/png", "image/jpeg", "image/webp"]);
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 10 * 1024 * 1024 },
+    fileFilter: (_req, file, callback) => {
+        const ext = path.extname(file.originalname).toLowerCase();
+        const valid = allowedExtensions.has(ext) && allowedMimeTypes.has(file.mimetype);
+        callback(valid ? null : new Error("Only PNG, JPG and WebP images are allowed"), valid);
+    },
+});
+
+const acceptSupportImage = (req, res, next) => {
+    upload.single("image")(req, res, (error) => {
+        if (error) return res.status(400).json({ success: false, message: error.message });
+        next();
+    });
+};
+
+async function processAndUploadImage(file, userId) {
+    if (!file) return "";
+    try {
+        if (isCloudinaryConfigured()) {
+            const processed = await sharp(file.buffer)
+                .rotate()
+                .resize(1400, 1400, { fit: "inside", withoutEnlargement: true })
+                .webp({ quality: 82 })
+                .toBuffer();
+            const result = await uploadBuffer(processed, {
+                folder: "khedmati/support",
+                public_id: `support-${userId}-${crypto.randomUUID()}`,
+                resource_type: "image",
+                type: "upload",
+                format: "webp",
+                overwrite: false,
+            });
+            return result.secure_url;
+        }
+    } catch (err) {
+        console.error("Cloudinary upload failed for support image, falling back:", err);
+    }
+
+    try {
+        const processed = await sharp(file.buffer)
+            .rotate()
+            .resize(1000, 1000, { fit: "inside", withoutEnlargement: true })
+            .webp({ quality: 75 })
+            .toBuffer();
+        return `data:image/webp;base64,${processed.toString("base64")}`;
+    } catch (e) {
+        return `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+    }
+}
 
 const VALID_STATUSES = ["open", "in_progress", "closed"];
 
@@ -53,13 +113,16 @@ router.get("/:id", async (req, res) => {
 });
 
 // Admin replies to a ticket. An open ticket moves to in_progress.
-router.post("/:id/messages", async (req, res) => {
+router.post("/:id/messages", acceptSupportImage, async (req, res) => {
     try {
         const { text } = req.body;
-        if (!text || !text.trim()) {
+        const msgText = (text || "").trim();
+        const imageUrl = await processAndUploadImage(req.file, req.user._id);
+
+        if (!msgText && !imageUrl) {
             return res
                 .status(400)
-                .json({ success: false, message: "Message text is required" });
+                .json({ success: false, message: "Message text or an image is required" });
         }
         const ticket = await SupportTicket.findById(req.params.id);
         if (!ticket) {
@@ -71,7 +134,8 @@ router.post("/:id/messages", async (req, res) => {
         ticket.messages.push({
             sender: req.user._id,
             senderRole: "admin",
-            text: text.trim(),
+            text: msgText,
+            image: imageUrl,
         });
         ticket.lastMessageAt = new Date();
         if (ticket.status === "open") ticket.status = "in_progress";

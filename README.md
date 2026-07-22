@@ -15,7 +15,6 @@
 
 ---
 
-
 ## 🌟 Key Features / المميزات الرئيسية
 
 * **bilingual Layout (العربية والانجليزية)**: دعم كامل للغات والاتجاهات (RTL/LTR) مع خط **Cairo** المميّز وتغيير فوري بدون إعادة تحميل الصفحة.
@@ -59,7 +58,7 @@
 
 1. **Clone the repository / استنساخ المشروع**
    ```bash
-   git clone https://github.com/hmztaljbry789-prog/Khedmati.git
+   git clone https://github.com/akram98safi/Khedmati.git
    cd Khedmati
    ```
 
@@ -108,7 +107,7 @@ npm run seed:admin
 
 يُنشئ هذا الأمر حساب مدير بالبيانات التالية (أو يحدّث دور حساب موجود بنفس الإيميل إلى `admin`):
 * **Email**: `admin@khedmati.ps`
-* **Password**: `admin12345`
+* **Password**: `admin123`
 
 يمكنك تخصيص البيانات عبر متغيّرات البيئة قبل التشغيل:
 

@@ -7,7 +7,7 @@ import {
     replyAdminSupportTicket,
     updateAdminSupportStatus,
 } from "../../utils/api";
-import { LifeBuoy, Send, ArrowLeft, User as UserIcon } from "lucide-react";
+import { LifeBuoy, Send, ArrowLeft, User as UserIcon, Paperclip, X } from "lucide-react";
 
 const STATUSES = ["open", "in_progress", "closed"];
 
@@ -78,13 +78,6 @@ const badge = {
     fontSize: "12px",
     fontWeight: 600,
     color: "#fff",
-};
-const listHeader = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: "12px",
-    gap: "10px",
 };
 const primaryBtn = {
     display: "inline-flex",
@@ -162,6 +155,33 @@ const emptyState = {
     padding: "40px 10px",
     fontSize: "14px",
 };
+const previewBox = {
+    position: "relative",
+    display: "inline-block",
+    marginBottom: "12px",
+};
+const previewImg = {
+    width: "80px",
+    height: "80px",
+    borderRadius: "12px",
+    objectFit: "cover",
+    border: "1px solid var(--border)",
+};
+const removeBtn = {
+    position: "absolute",
+    top: "-6px",
+    right: "-6px",
+    background: "var(--red)",
+    color: "#fff",
+    border: "none",
+    borderRadius: "50%",
+    width: "22px",
+    height: "22px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+};
 
 export default function AdminSupport() {
     const { locale } = useContext(PortalContext);
@@ -174,7 +194,11 @@ export default function AdminSupport() {
     const [activeId, setActiveId] = useState(null);
     const [activeTicket, setActiveTicket] = useState(null);
     const [reply, setReply] = useState("");
-    const endRef = useRef(null);
+    const [replyImage, setReplyImage] = useState(null);
+    const [replyImagePreview, setReplyImagePreview] = useState("");
+    const threadBoxRef = useRef(null);
+    const prevMsgCountRef = useRef(0);
+    const replyFileInputRef = useRef(null);
 
     const loadList = useCallback(async () => {
         try {
@@ -209,7 +233,17 @@ export default function AdminSupport() {
     }, [activeId, loadTicket]);
 
     useEffect(() => {
-        endRef.current?.scrollIntoView({ behavior: "smooth" });
+        if (!activeTicket) {
+            prevMsgCountRef.current = 0;
+            return;
+        }
+        const currentCount = activeTicket.messages?.length || 0;
+        if (currentCount !== prevMsgCountRef.current) {
+            prevMsgCountRef.current = currentCount;
+            if (threadBoxRef.current) {
+                threadBoxRef.current.scrollTop = threadBoxRef.current.scrollHeight;
+            }
+        }
     }, [activeTicket]);
 
     const statusLabel = (s) =>
@@ -247,13 +281,24 @@ export default function AdminSupport() {
     const personName = (u) =>
         u ? `${u.first_name || ""} ${u.last_name || ""}`.trim() || u.email : "";
 
+    const handleReplyImageSelect = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setReplyImage(file);
+            setReplyImagePreview(URL.createObjectURL(file));
+        }
+    };
+
     const handleReply = async (e) => {
         e.preventDefault();
-        if (!reply.trim()) return;
+        if (!reply.trim() && !replyImage) return;
         const text = reply;
+        const imgFile = replyImage;
         setReply("");
+        setReplyImage(null);
+        setReplyImagePreview("");
         try {
-            const data = await replyAdminSupportTicket(activeId, text);
+            const data = await replyAdminSupportTicket(activeId, text, imgFile);
             setActiveTicket(data?.ticket || null);
             loadList();
         } catch (err) {
@@ -340,30 +385,61 @@ export default function AdminSupport() {
                 <div style={card}>
                     {activeTicket ? (
                         <div>
-                            <div style={listHeader}>
-                                <div>
-                                    <div style={ticketSubject}>
-                                        {activeTicket.subject}
-                                    </div>
-                                    <div style={metaRow}>
-                                        <span style={badgeStyle(activeTicket.status)}>
-                                            {statusLabel(activeTicket.status)}
-                                        </span>
-                                        <span>
-                                            {t.from}: {personName(activeTicket.user)}
-                                        </span>
-                                    </div>
-                                </div>
-                                <button
-                                    type="button"
-                                    style={ghostBtn}
-                                    onClick={() => {
-                                        setActiveId(null);
-                                        setActiveTicket(null);
+                            <div
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    gap: "12px",
+                                    paddingBottom: "14px",
+                                    marginBottom: "16px",
+                                    borderBottom: "1px solid var(--border)",
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "12px",
+                                        flexWrap: "wrap",
                                     }}
                                 >
-                                    <ArrowLeft size={15} /> {t.back}
-                                </button>
+                                    <button
+                                        type="button"
+                                        style={{
+                                            ...ghostBtn,
+                                            padding: "7px 14px",
+                                            borderRadius: "10px",
+                                            fontSize: "13px",
+                                            fontWeight: 600,
+                                        }}
+                                        onClick={() => {
+                                            setActiveId(null);
+                                            setActiveTicket(null);
+                                        }}
+                                    >
+                                        <ArrowLeft
+                                            size={15}
+                                            style={{
+                                                transform: isRtl ? "rotate(180deg)" : "none",
+                                            }}
+                                        />
+                                        <span>{t.back}</span>
+                                    </button>
+                                    <div>
+                                        <div style={{ ...ticketSubject, marginBottom: "2px" }}>
+                                            {activeTicket.subject}
+                                        </div>
+                                        <div style={metaRow}>
+                                            <span style={badgeStyle(activeTicket.status)}>
+                                                {statusLabel(activeTicket.status)}
+                                            </span>
+                                            <span>
+                                                {t.from}: {personName(activeTicket.user)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div style={statusBtnRow}>
@@ -379,7 +455,7 @@ export default function AdminSupport() {
                                 ))}
                             </div>
 
-                            <div style={threadBox}>
+                            <div style={threadBox} ref={threadBoxRef}>
                                 {(activeTicket.messages || []).map((m, i) => (
                                     <div
                                         key={m._id || i}
@@ -407,13 +483,66 @@ export default function AdminSupport() {
                                                       t.customerLabel}
                                             </span>
                                         </div>
-                                        <div>{m.text}</div>
+                                        {m.text ? <div>{m.text}</div> : null}
+                                        {m.image ? (
+                                            <div style={{ marginTop: "6px" }}>
+                                                <img
+                                                    src={m.image}
+                                                    alt="Attachment"
+                                                    style={{
+                                                        maxWidth: "100%",
+                                                        maxHeight: "260px",
+                                                        borderRadius: "10px",
+                                                        objectFit: "cover",
+                                                        cursor: "pointer",
+                                                        border: "1px solid var(--border)",
+                                                        display: "block",
+                                                    }}
+                                                    onClick={() => window.open(m.image, "_blank")}
+                                                />
+                                            </div>
+                                        ) : null}
+                                        {!m.text && !m.image ? (
+                                            <div style={{ fontStyle: "italic", opacity: 0.6, fontSize: "12px" }}>
+                                                ({isRtl ? "رسالة بدون محتوى" : "Empty message"})
+                                            </div>
+                                        ) : null}
                                     </div>
                                 ))}
-                                <div ref={endRef} />
                             </div>
 
+                            {replyImagePreview ? (
+                                <div style={previewBox}>
+                                    <img src={replyImagePreview} alt="" style={previewImg} />
+                                    <button
+                                        type="button"
+                                        style={removeBtn}
+                                        onClick={() => {
+                                            setReplyImage(null);
+                                            setReplyImagePreview("");
+                                        }}
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                </div>
+                            ) : null}
+
                             <form onSubmit={handleReply} style={replyRow}>
+                                <input
+                                    type="file"
+                                    ref={replyFileInputRef}
+                                    accept="image/png, image/jpeg, image/webp"
+                                    style={{ display: "none" }}
+                                    onChange={handleReplyImageSelect}
+                                />
+                                <button
+                                    type="button"
+                                    style={{ ...ghostBtn, padding: "10px" }}
+                                    title={t.attachImage}
+                                    onClick={() => replyFileInputRef.current?.click()}
+                                >
+                                    <Paperclip size={18} />
+                                </button>
                                 <input
                                     style={replyInput}
                                     value={reply}
